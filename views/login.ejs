@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurante do Caio - Login</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #14001a, #2b0033, #000000);
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: 15px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(128, 0, 128, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            width: 100px;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            color: white;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        h2 span {
+            color: #c77dff;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 8px;
+            outline: none;
+            background: #1e1e1e;
+            color: white;
+            border: 1px solid #333;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #c77dff;
+            box-shadow: 0 0 8px #c77dff;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #7209b7, #c77dff);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #c77dff;
+        }
+
+        .brand {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .brand strong {
+            color: #c77dff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <!-- TROQUE "logo.png" pelo nome da sua imagem -->
+        <img src="logo.png" alt="Logo Restaurante do Caio" class="logo">
+
+        <h2>🍽 <span>Restaurante do Caio</span></h2>
+
+        <form action="/login" method="POST">
+            <input type="text" name="username" placeholder="Usuário" required>
+            <input type="password" name="password" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+
+        <div class="brand">
+            © 2026 <strong>Restaurante do Caio</strong> — Sabor que conquista todos os dias
+        </div>
+
+    </div>
+
+</body>
+</html>
