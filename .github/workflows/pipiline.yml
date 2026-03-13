@@ -19,13 +19,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: npm
 
       - name: Instalar dependências
         run: npm install
 
-      - name: Verificar instalação
-        run: npm list
-
-      - name: Executar aplicação (teste)
+      - name: Executar aplicação
         run: node index.js
