@@ -6,15 +6,17 @@ on:
 
   push:
 
-    branches: [ "developer" ]
+    branches: [ "develop" ]
 
   pull_request:
 
-    branches: [ "developer" ]
+    branches: [ "develop" ]
 
 
 
 jobs:
+
+
 
   estagio_build:
 
@@ -47,6 +49,8 @@ jobs:
       - name: Verificar sintaxe do projeto
 
         run: node --check index.js
+
+
 
 
 
@@ -86,7 +90,7 @@ jobs:
 
 
 
-      - name: Instalar globals para o ESLint
+      - name: Instalar globals para ESLint
 
         run: npm install --no-save globals
 
@@ -148,7 +152,41 @@ jobs:
 
 
 
-      - name: Rodar build
 
-        run: node --check index.js
+
+  job_sonar:
+
+    needs: estagio_lint
+
+    runs-on: ubuntu-latest
+
+
+
+    steps:
+
+      - name: Checkout do código
+
+        uses: actions/checkout@v4
+
+
+
+      - name: SonarQube Scan
+
+        uses: sonarsource/sonarqube-scan-action@master
+
+        env:
+
+          SONAR_TOKEN: ${{ secrets.TOKEN_SONAR }}
+
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+        with:
+
+          args: >
+
+            -Dsonar.projectKey=marmitatech-pro
+
+            -Dsonar.projectName="MarmitaTech Pro"
+
+            -Dsonar.sources=.
 
