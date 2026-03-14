@@ -6,11 +6,11 @@ on:
 
   push:
 
-    branches: [ "develop" ]
+    branches: [ "developer" ]
 
   pull_request:
 
-    branches: [ "develop" ]
+    branches: [ "developer" ]
 
 
 
