@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Restaurante do Caio | Login</title>
+    <title>Restaurante do Caio - Login</title>
 
     <style>
         * {
@@ -14,158 +14,107 @@
 
         body {
             height: 100vh;
-            background: linear-gradient(135deg, #14001a, #2b0033, #000000);
             display: flex;
             justify-content: center;
             align-items: center;
+            background: linear-gradient(135deg, #14001a, #2b0033, #000000);
         }
 
-        .container {
+        .login-container {
             background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            width: 400px;
-            max-width: 90%;
+            backdrop-filter: blur(15px);
             padding: 40px;
+            border-radius: 15px;
+            width: 350px;
             text-align: center;
-            color: white;
-            box-shadow: 0 0 40px rgba(199, 125, 255, 0.3);
-            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 30px rgba(128, 0, 128, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* LOGO */
         .logo {
-            width: 90px;
+            width: 100px;
             margin-bottom: 15px;
         }
 
-        h1 {
-            color: #c77dff;
-            margin-bottom: 5px;
-        }
-
-        .subtitle {
-            font-size: 14px;
-            color: #aaa;
+        h2 {
+            color: white;
             margin-bottom: 25px;
+            font-weight: 500;
         }
 
-        /* INPUTS */
-        .input-group {
-            position: relative;
-            margin-bottom: 20px;
+        h2 span {
+            color: #c77dff;
+            font-weight: bold;
         }
 
-        .input-group input {
+        input {
             width: 100%;
             padding: 12px;
-            background: transparent;
+            margin-bottom: 15px;
             border: none;
-            border-bottom: 2px solid #555;
-            color: white;
+            border-radius: 8px;
             outline: none;
-        }
-
-        .input-group label {
-            position: absolute;
-            left: 0;
-            top: 12px;
-            color: #888;
+            background: #1e1e1e;
+            color: white;
+            border: 1px solid #333;
             transition: 0.3s;
         }
 
-        .input-group input:focus + label,
-        .input-group input:valid + label {
-            top: -10px;
-            font-size: 12px;
-            color: #c77dff;
+        input:focus {
+            border-color: #c77dff;
+            box-shadow: 0 0 8px #c77dff;
         }
 
-        /* BOTÃO */
         button {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(90deg, #7209b7, #c77dff);
             border: none;
             border-radius: 8px;
+            background: linear-gradient(90deg, #7209b7, #c77dff);
             color: white;
-            font-weight: bold;
+            font-size: 16px;
             cursor: pointer;
             transition: 0.3s;
+            font-weight: bold;
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(199, 125, 255, 0.4);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #c77dff;
         }
 
-        /* LINKS */
-        .extras {
+        .brand {
             margin-top: 15px;
             font-size: 13px;
+            color: #aaa;
         }
 
-        .extras a {
-            color: #c77dff;
-            text-decoration: none;
-        }
-
-        .extras a:hover {
-            text-decoration: underline;
-        }
-
-        /* RODAPÉ */
-        .footer {
-            margin-top: 25px;
-            font-size: 12px;
-            color: #777;
-        }
-
-        .footer strong {
+        .brand strong {
             color: #c77dff;
         }
-
     </style>
 </head>
 
 <body>
 
-<div class="container">
+    <div class="login-container">
 
-    <!-- TÍTULO -->
-    <h1>Restaurante do Caio</h1>
-    <p class="subtitle">Sabor que conquista todos os dias 🍽️</p>
+        <!-- TROQUE "logo.png" pelo nome da sua imagem -->
+        <img src="logo.png" alt="Logo Restaurante do Caio" class="logo">
 
-    <!-- FORM -->
-    <form action="/login" method="POST">
+        <h2>🍽 <span>Restaurante do Caio</span></h2>
 
-        <div class="input-group">
-            <input type="text" name="username" required>
-            <label>Usuário</label>
+        <form action="/login" method="POST">
+            <input type="text" name="username" placeholder="Usuário" required>
+            <input type="password" name="password" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+
+        <div class="brand">
+            © 2026 <strong>Restaurante do Caio</strong> — Sabor que conquista todos os dias
         </div>
 
-        <div class="input-group">
-            <input type="password" name="password" required>
-            <label>Senha</label>
-        </div>
-
-        <button type="submit">Entrar</button>
-
-    </form>
-
-    <!-- LINKS -->
-    <div class="extras">
-        <p><a href="#">Esqueceu a senha?</a></p>
-        <p>Não tem conta? <a href="#">Cadastre-se</a></p>
     </div>
-
-    <!-- RODAPÉ -->
-    <div class="footer">
-        © 2026 <strong>Restaurante do Caio</strong><br>
-        Sistema interno de pedidos e gestão
-    </div>
-
-</div>
 
 </body>
 </html>
