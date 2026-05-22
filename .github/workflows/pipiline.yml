@@ -116,17 +116,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-  job_trivy_sonar:
-    needs: job_release_docker
-    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
-    runs-on: ubuntu-latest
-    steps:
-      - name: TODO - Checkout do codigo para o Sonar
-        run: echo "Implemente o checkout com fetch-depth 0 aqui"
-
-      - name: TODO - Scan de seguranca com Trivy
-        run: echo "Implemente a varredura do Trivy gerando o arquivo JSON aqui"
-
-      - name: TODO - SonarQube lendo o Trivy como external issues
-        run: echo "Implemente o passo do Sonar injetando o JSON do Trivy aqui"
