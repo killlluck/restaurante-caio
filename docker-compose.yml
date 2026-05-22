@@ -21,7 +21,7 @@ services:
     build: .
     container_name: marmitatech-app
     ports:
-      - "3000:3000"
+      - "8091:3000"
     environment:
       NODE_ENV: production
       DB_HOST: db
