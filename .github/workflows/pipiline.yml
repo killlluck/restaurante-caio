@@ -2,9 +2,7 @@ name: integracao continua e staging
 
 on:
   push:
-    branches: ["developer", "staging"]
-  pull_request:
-    branches: ["developer"]
+    branches: ["staging"]
 
 jobs:
   estagio_build:
@@ -52,7 +50,7 @@ jobs:
 
   job_sonar:
     needs: estagio_lint
-    if: github.ref == 'refs/heads/developer'
+    if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
 
     steps:
@@ -227,3 +225,36 @@ jobs:
           args: >
             -Dsonar.branch.name=${{ github.ref_name }}
             -Dsonar.externalIssuesReportPaths=sonar-trivy-issues.json
+
+  job_deploy_staging:
+    needs: job_trivy_sonar
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@v6
+
+      - name: Preparar arquivo Compose com o identificador do aluno
+        run: |
+          cp docker-compose.yml docker-compose-8091.yml
+
+      - name: Copiar Compose para a EC2 via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: "docker-compose-8091.yml"
+          target: "/home/${{ secrets.EC2_USER }}/deploy_8091"
+
+      - name: Executar o deploy na EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            cd /home/${{ secrets.EC2_USER }}/deploy_8091
+            docker compose -f docker-compose-8091.yml pull
+            docker compose -f docker-compose-8091.yml up -d
+            echo "Deploy do aluno 8091 finalizado com sucesso!"
