@@ -1,7 +1,7 @@
 services:
   db:
     image: mysql:8.0
-    container_name: marmitatech-db
+    container_name: restaurante-caio-db
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: marmitadb
@@ -19,7 +19,7 @@ services:
 
   app:
     build: .
-    container_name: marmitatech-app
+    container_name: restaurante-caio-app
     ports:
       - "8091:3000"
     environment:
