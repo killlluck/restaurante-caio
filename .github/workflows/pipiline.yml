@@ -1,10 +1,10 @@
-name: integracao continua
+name: integracao continua e staging
 
 on:
   push:
     branches: ["developer", "staging"]
   pull_request:
-    branches: ["developer", "staging"]
+    branches: ["developer"]
 
 jobs:
   estagio_build:
@@ -52,6 +52,7 @@ jobs:
 
   job_sonar:
     needs: estagio_lint
+    if: github.ref == 'refs/heads/developer'
     runs-on: ubuntu-latest
 
     steps:
@@ -76,7 +77,7 @@ jobs:
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
-          SONAR_TOKEN: ${{ secrets.TOKEN_SONAR }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN || secrets.TOKEN_SONAR }}
           SONAR_HOST_URL: "https://devsecops.dcotech.com.br"
         with:
           args: >
@@ -84,7 +85,7 @@ jobs:
 
   job_release_docker:
     needs: estagio_lint
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout do codigo
@@ -105,8 +106,8 @@ jobs:
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}
           tags: |
-            type=ref,event=branch
-            type=sha,prefix=${{ github.ref_name }}-
+            type=raw,value=staging
+            type=sha,prefix=staging-
 
       - name: Build e push da imagem
         uses: docker/build-push-action@v7
@@ -116,3 +117,113 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  job_trivy_sonar:
+    needs: job_release_docker
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do codigo para o Sonar
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Login no Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Scan de seguranca com Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:staging
+          format: json
+          output: trivy-results.json
+          exit-code: "0"
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+
+      - name: Converter Trivy para external issues do Sonar
+        run: |
+          node <<'EOF'
+          const fs = require("fs");
+
+          const input = JSON.parse(fs.readFileSync("trivy-results.json", "utf8"));
+          const rulesById = new Map();
+          const issues = [];
+          const severityMap = {
+            CRITICAL: { sonar: "CRITICAL", impact: "HIGH" },
+            HIGH: { sonar: "MAJOR", impact: "HIGH" },
+            MEDIUM: { sonar: "MINOR", impact: "MEDIUM" },
+            LOW: { sonar: "INFO", impact: "LOW" },
+            UNKNOWN: { sonar: "INFO", impact: "INFO" }
+          };
+
+          for (const result of input.Results || []) {
+            for (const vulnerability of result.Vulnerabilities || []) {
+              const severity = severityMap[vulnerability.Severity] || severityMap.UNKNOWN;
+              const ruleId = vulnerability.VulnerabilityID || "TRIVY_UNKNOWN";
+
+              if (!rulesById.has(ruleId)) {
+                rulesById.set(ruleId, {
+                  id: ruleId,
+                  name: vulnerability.Title || ruleId,
+                  description: vulnerability.Description || vulnerability.Title || ruleId,
+                  engineId: "trivy",
+                  cleanCodeAttribute: "TRUSTWORTHY",
+                  type: "VULNERABILITY",
+                  severity: severity.sonar,
+                  impacts: [
+                    {
+                      softwareQuality: "SECURITY",
+                      severity: severity.impact
+                    }
+                  ]
+                });
+              }
+
+              issues.push({
+                ruleId,
+                effortMinutes: 10,
+                primaryLocation: {
+                  message: `${ruleId} em ${vulnerability.PkgName || result.Target}: ${vulnerability.InstalledVersion || "versao desconhecida"}`,
+                  filePath: "Dockerfile",
+                  textRange: {
+                    startLine: 1
+                  }
+                }
+              });
+            }
+          }
+
+          fs.writeFileSync(
+            "sonar-trivy-issues.json",
+            JSON.stringify({ rules: [...rulesById.values()], issues }, null, 2)
+          );
+          EOF
+
+      - name: Criar sonar-project.properties com Trivy
+        run: |
+          echo "sonar.projectKey=${{ github.event.repository.name }}" > sonar-project.properties
+          echo "sonar.projectName=${{ github.event.repository.name }}" >> sonar-project.properties
+          echo "sonar.branch.name=${{ github.ref_name }}" >> sonar-project.properties
+          echo "sonar.sources=." >> sonar-project.properties
+          echo "sonar.inclusions=**/*.js,Dockerfile" >> sonar-project.properties
+          echo "sonar.sourceEncoding=UTF-8" >> sonar-project.properties
+          echo "sonar.exclusions=node_modules/**,.git/**,.github/**,coverage/**,dist/**" >> sonar-project.properties
+          echo "sonar.externalIssuesReportPaths=sonar-trivy-issues.json" >> sonar-project.properties
+
+      - name: Exibir configuracao do Sonar com Trivy
+        run: cat sonar-project.properties
+
+      - name: SonarQube lendo o Trivy
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN || secrets.TOKEN_SONAR }}
+          SONAR_HOST_URL: "https://devsecops.dcotech.com.br"
+        with:
+          args: >
+            -Dsonar.branch.name=${{ github.ref_name }}
+            -Dsonar.externalIssuesReportPaths=sonar-trivy-issues.json
