@@ -230,9 +230,19 @@ jobs:
     needs: job_trivy_sonar
     if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_USER: ${{ secrets.EC2_USER || 'ubuntu' }}
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
     steps:
       - name: Checkout do codigo
         uses: actions/checkout@v6
+
+      - name: Validar secrets de deploy
+        run: |
+          test -n "$EC2_HOST" || (echo "Secret EC2_HOST nao configurado" && exit 1)
+          test -n "$DEPLOY_USER" || (echo "Secret EC2_USER nao configurado" && exit 1)
+          test -n "$EC2_PRIVATE_KEY" || (echo "Secret EC2_PRIVATE_KEY nao configurado" && exit 1)
 
       - name: Preparar arquivo Compose com o identificador do aluno
         run: |
@@ -241,20 +251,20 @@ jobs:
       - name: Copiar Compose para a EC2 via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          host: ${{ env.EC2_HOST }}
+          username: ${{ env.DEPLOY_USER }}
+          key: ${{ env.EC2_PRIVATE_KEY }}
           source: "docker-compose-8091.yml"
-          target: "/home/${{ secrets.EC2_USER }}/deploy_8091"
+          target: "/home/${{ env.DEPLOY_USER }}/deploy_8091"
 
       - name: Executar o deploy na EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          host: ${{ env.EC2_HOST }}
+          username: ${{ env.DEPLOY_USER }}
+          key: ${{ env.EC2_PRIVATE_KEY }}
           script: |
-            cd /home/${{ secrets.EC2_USER }}/deploy_8091
+            cd /home/${{ env.DEPLOY_USER }}/deploy_8091
             docker compose -f docker-compose-8091.yml pull
             docker compose -f docker-compose-8091.yml up -d
             echo "Deploy do aluno 8091 finalizado com sucesso!"
