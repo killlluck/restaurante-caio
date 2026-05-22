@@ -116,3 +116,34 @@ jobs:
           # Reforça a branch nos argumentos da execução
           args: >
             -Dsonar.branch.name=${{ github.ref_name }}
+ # ==========================================
+  # ETAPAS DE STAGING (Esqueleto)
+  # ==========================================
+  
+  job_release_docker:
+    needs: estagio_lint
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    steps:
+      - name: TO DO - Checkout do código
+        run: echo "Você deve implementar o checkout aqui"
+
+      - name: TO DO - Login no Registry
+        run: echo "Você deve implementar o login do Docker aqui"
+
+      - name: TO DO - Build e Push da Imagem
+        run: echo "Você deve implementar a criação do artefato (imagem) e o envio pro registry aqui"
+
+  job_trivy_sonar:
+    needs: job_release_docker
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    steps:
+      - name: TO DO - Checkout do código para o Sonar
+        run: echo "Você deve implementar o checkout com fetch-depth 0 aqui"
+
+      - name: TO DO - Scan de Segurança com Trivy
+        run: echo "Você deve implementar a varredura do Trivy gerando o arquivo JSON aqui"
+
+      - name: TO DO - SonarQube lendo o Trivy (External Issues)
+        run: echo "Você deve implementar o passo do Sonar injetando o JSON do Trivy aqui"
