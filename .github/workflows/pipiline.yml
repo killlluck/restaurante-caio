@@ -84,7 +84,7 @@ jobs:
 
   job_release_docker:
     needs: estagio_lint
-    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout do codigo
@@ -105,8 +105,8 @@ jobs:
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}
           tags: |
-            type=raw,value=staging
-            type=sha,prefix=staging-
+            type=ref,event=branch
+            type=sha,prefix=${{ github.ref_name }}-
 
       - name: Build e push da imagem
         uses: docker/build-push-action@v7
