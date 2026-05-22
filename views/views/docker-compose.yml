@@ -1,14 +1,14 @@
 services:
   app:
     image: killlluck/restaurante-caio:staging
-    container_name: restaurante-caio-app
+    container_name: restaurante-caio-8091-app
     ports:
       - "8091:3000"
     environment:
       DB_HOST: dbcentral
       DB_USER: root
       DB_PASS: password
-      DB_NAME: marmitadb
+      DB_NAME: restaurante_caio_8091
     networks:
       - rede_alunos
 
