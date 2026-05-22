@@ -22,7 +22,7 @@ async function connectWithRetry() {
             await pool.query('SELECT 1');
             console.log('✅ [DATABASE] Conectado ao MySQL com sucesso!');
             return;
-        } catch (err) {
+        } catch {
             console.log(`⚠️ [DATABASE] Tentativa ${i}/10 falhou. Aguardando...`);
             await new Promise(res => setTimeout(res, 3000));
         }
@@ -46,7 +46,7 @@ app.post('/login', async (req, res) => {
         const [rows] = await pool.query('SELECT * FROM users WHERE username = ? AND password = ?', [username, password]);
         if (rows.length > 0) res.redirect('/dashboard');
         else res.send('<h1>Login Inválido</h1><a href="/">Voltar</a>');
-    } catch (err) {
+    } catch {
         res.status(500).send("Erro no banco.");
     }
 });

@@ -1,22 +1,22 @@
-- name: Criar configuração temporária do ESLint
-  run: |
-    cat > eslint.config.js <<'EOF'
-    module.exports = [
-      {
-        files: ["**/*.js"],
-        ignores: ["node_modules/**"],
-        languageOptions: {
-          ecmaVersion: 2021,
-          sourceType: "commonjs"
-        },
-        env: {
-          node: true,
-          es2021: true
-        },
-        rules: {
-          "no-unused-vars": "warn",
-          "no-undef": "error"
-        }
+module.exports = [
+  {
+    files: ["**/*.js"],
+    ignores: ["node_modules/**", ".git/**", "dist/**"],
+    languageOptions: {
+      ecmaVersion: 2021,
+      sourceType: "commonjs",
+      globals: {
+        __dirname: "readonly",
+        console: "readonly",
+        module: "readonly",
+        process: "readonly",
+        require: "readonly",
+        setTimeout: "readonly"
       }
-    ];
-    EOF
+    },
+    rules: {
+      "no-unused-vars": "warn",
+      "no-undef": "error"
+    }
+  }
+];

@@ -11,19 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout do codigo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Configurar Node.js 18
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "18"
-          package-manager-cache: false
-
-      - name: Gerar lockfile temporario
-        run: npm install --package-lock-only
 
       - name: Instalar dependencias
-        run: npm install
+        run: npm ci
 
       - name: Verificar sintaxe de todos os arquivos JS
         run: |
@@ -38,47 +34,18 @@ jobs:
     needs: estagio_build
     steps:
       - name: Checkout do codigo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Configurar Node.js 18
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "18"
-          package-manager-cache: false
-
-      - name: Gerar lockfile temporario
-        run: npm install --package-lock-only
 
       - name: Instalar dependencias
-        run: npm install
+        run: npm ci
 
-      - name: Instalar dependencias temporarias do lint
-        run: npm install --no-save eslint globals
-
-      - name: Criar configuracao temporaria do ESLint
-        run: |
-          cat > eslint.config.js <<'EOF'
-          const globals = require("globals");
-
-          module.exports = [
-            {
-              files: ["**/*.js"],
-              ignores: ["node_modules/**", ".git/**", "dist/**"],
-              languageOptions: {
-                ecmaVersion: 2021,
-                sourceType: "commonjs",
-                globals: {
-                  ...globals.node,
-                  ...globals.commonjs
-                }
-              },
-              rules: {
-                "no-unused-vars": "warn",
-                "no-undef": "error"
-              }
-            }
-          ];
-          EOF
+      - name: Instalar ESLint temporario
+        run: npm install --no-save eslint
 
       - name: Rodar lint
         run: npx eslint .
@@ -89,7 +56,7 @@ jobs:
 
     steps:
       - name: Checkout do codigo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -121,20 +88,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout do codigo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Configurar Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Login no Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Gerar tags da imagem
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}
           tags: |
@@ -142,7 +109,7 @@ jobs:
             type=sha,prefix=staging-
 
       - name: Build e push da imagem
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile
