@@ -264,7 +264,8 @@ jobs:
           username: ${{ env.DEPLOY_USER }}
           key: ${{ env.EC2_PRIVATE_KEY }}
           script: |
+            mkdir -p /home/${{ env.DEPLOY_USER }}/deploy_8091
             cd /home/${{ env.DEPLOY_USER }}/deploy_8091
-            docker compose -f docker-compose-8091.yml pull
-            docker compose -f docker-compose-8091.yml up -d
+            sudo docker compose -f docker-compose-8091.yml pull
+            sudo docker compose -f docker-compose-8091.yml up -d
             echo "Deploy do aluno 8091 finalizado com sucesso!"
