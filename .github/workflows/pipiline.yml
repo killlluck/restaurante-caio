@@ -268,4 +268,8 @@ jobs:
             cd /home/${{ env.DEPLOY_USER }}/deploy_8091
             sudo docker compose -f docker-compose-8091.yml pull
             sudo docker compose -f docker-compose-8091.yml up -d
+            sudo docker ps --filter "name=restaurante-caio-8091-app"
+            sleep 10
+            sudo docker logs --tail 80 restaurante-caio-8091-app
+            curl -fsS http://localhost:8091/ > /dev/null
             echo "Deploy do aluno 8091 finalizado com sucesso!"
