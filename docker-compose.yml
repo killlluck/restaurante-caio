@@ -5,13 +5,10 @@ services:
     ports:
       - "8091:3000"
     environment:
-      DB_HOST: dbcentral
+      DB_HOST: 54.89.88.5
       DB_USER: root
       DB_PASS: password
       DB_NAME: restaurante_caio_8091
-    networks:
-      - rede_alunos
-
 networks:
   rede_alunos:
     external: true
