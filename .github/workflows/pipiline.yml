@@ -77,14 +77,14 @@ jobs:
 
       - name: Validar token do Sonar
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN || secrets.TOKEN_SONAR }}
         run: |
-          test -n "$SONAR_TOKEN" || (echo "Secret SONAR_TOKEN nao configurado" && exit 1)
+          test -n "$SONAR_TOKEN" || (echo "Secret SONAR_TOKEN ou TOKEN_SONAR nao configurado" && exit 1)
 
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN || secrets.TOKEN_SONAR }}
           SONAR_HOST_URL: "https://devsecops.dcotech.com.br"
         with:
           args: >
@@ -227,14 +227,14 @@ jobs:
 
       - name: Validar token do Sonar com Trivy
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN || secrets.TOKEN_SONAR }}
         run: |
-          test -n "$SONAR_TOKEN" || (echo "Secret SONAR_TOKEN nao configurado" && exit 1)
+          test -n "$SONAR_TOKEN" || (echo "Secret SONAR_TOKEN ou TOKEN_SONAR nao configurado" && exit 1)
 
       - name: SonarQube lendo o Trivy
         uses: sonarsource/sonarqube-scan-action@master
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN || secrets.TOKEN_SONAR }}
           SONAR_HOST_URL: "https://devsecops.dcotech.com.br"
         with:
           args: >
