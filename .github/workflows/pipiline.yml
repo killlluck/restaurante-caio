@@ -5,6 +5,9 @@ on:
     branches: ["staging"]
 
 jobs:
+  # ==========================================
+  # ETAPAS EXISTENTES (Completas)
+  # ==========================================
   estagio_build:
     runs-on: ubuntu-latest
     steps:
@@ -83,7 +86,7 @@ jobs:
 
   job_release_docker:
     needs: estagio_lint
-    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout do codigo
@@ -118,7 +121,7 @@ jobs:
 
   job_trivy_sonar:
     needs: job_release_docker
-    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout do codigo para o Sonar
@@ -226,6 +229,9 @@ jobs:
             -Dsonar.branch.name=${{ github.ref_name }}
             -Dsonar.externalIssuesReportPaths=sonar-trivy-issues.json
 
+  # ==========================================
+  # ETAPA DE DEPLOY STAGING
+  # ==========================================
   job_deploy_staging:
     needs: job_trivy_sonar
     if: github.ref == 'refs/heads/staging'
