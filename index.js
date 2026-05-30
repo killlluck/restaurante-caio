@@ -7,6 +7,7 @@ const app = express();
 
 const dbConfig = {
     host: process.env.DB_HOST || 'db',
+    port: process.env.DB_PORT || 3306,
     user: process.env.DB_USER || 'user',
     password: process.env.DB_PASS || 'password',
     database: process.env.DB_NAME || 'marmitadb'

@@ -266,13 +266,13 @@ jobs:
         run: |
           cp docker-compose.yml docker-compose-8091.yml
 
-      - name: Copiar Compose para a EC2 via SCP
+      - name: Copiar Compose e init.sql para a EC2 via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ env.EC2_HOST }}
           username: ${{ env.DEPLOY_USER }}
           key: ${{ env.EC2_PRIVATE_KEY }}
-          source: "docker-compose-8091.yml"
+          source: "docker-compose-8091.yml,init.sql"
           target: "/home/${{ env.DEPLOY_USER }}/deploy_8091"
 
       - name: Executar o deploy na EC2 via SSH
@@ -284,10 +284,13 @@ jobs:
           script: |
             mkdir -p /home/${{ env.DEPLOY_USER }}/deploy_8091
             cd /home/${{ env.DEPLOY_USER }}/deploy_8091
+            echo "Executando init.sql no container mysql-infra..."
+            sudo docker exec -i mysql-infra mysql -u root -ppassword < init.sql
+            echo "init.sql executado com sucesso!"
             sudo docker compose -f docker-compose-8091.yml pull
             sudo docker compose -f docker-compose-8091.yml up -d
-            sudo docker ps --filter "name=restaurante-caio-8091-app"
+            sudo docker ps --filter "name=restauranteCaio"
             sleep 10
-            sudo docker logs --tail 80 restaurante-caio-8091-app
+            sudo docker logs --tail 80 restauranteCaio
             curl -fsS http://localhost:8091/ > /dev/null
             echo "Deploy do aluno 8091 finalizado com sucesso!"
