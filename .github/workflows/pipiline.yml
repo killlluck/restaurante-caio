@@ -252,6 +252,8 @@ jobs:
       DEPLOY_USER: ${{ secrets.EC2_USER || 'ec2-user' }}
       EC2_HOST: ${{ secrets.EC2_HOST }}
       EC2_PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout do codigo
         uses: actions/checkout@v6
@@ -261,10 +263,13 @@ jobs:
           test -n "$EC2_HOST" || (echo "Secret EC2_HOST nao configurado" && exit 1)
           test -n "$DEPLOY_USER" || (echo "Secret EC2_USER nao configurado" && exit 1)
           test -n "$EC2_PRIVATE_KEY" || (echo "Secret EC2_PRIVATE_KEY nao configurado" && exit 1)
+          test -n "$DOCKERHUB_USERNAME" || (echo "Secret DOCKERHUB_USERNAME nao configurado" && exit 1)
+          test -n "$DOCKERHUB_TOKEN" || (echo "Secret DOCKERHUB_TOKEN nao configurado" && exit 1)
 
       - name: Preparar arquivo Compose com o identificador do aluno
         run: |
           cp docker-compose.yml docker-compose-8091.yml
+          sed -i "s|image: .*|image: $DOCKERHUB_USERNAME/${{ github.event.repository.name }}:staging|" docker-compose-8091.yml
 
       - name: Copiar Compose e init.sql para a EC2 via SCP
         uses: appleboy/scp-action@v0.1.7
@@ -281,12 +286,16 @@ jobs:
           host: ${{ env.EC2_HOST }}
           username: ${{ env.DEPLOY_USER }}
           key: ${{ env.EC2_PRIVATE_KEY }}
+          envs: DOCKERHUB_USERNAME,DOCKERHUB_TOKEN
+          script_stop: true
           script: |
+            set -e
             mkdir -p /home/${{ env.DEPLOY_USER }}/deploy_8091
             cd /home/${{ env.DEPLOY_USER }}/deploy_8091
             echo "Executando init.sql no container mysql-infra..."
             sudo docker exec -i mysql-infra mysql -u root -ppassword < init.sql
             echo "init.sql executado com sucesso!"
+            echo "$DOCKERHUB_TOKEN" | sudo docker login -u "$DOCKERHUB_USERNAME" --password-stdin
             sudo docker compose -f docker-compose-8091.yml pull
             sudo docker compose -f docker-compose-8091.yml up -d
             sudo docker ps --filter "name=restauranteCaio"
