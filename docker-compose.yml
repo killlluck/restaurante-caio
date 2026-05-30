@@ -6,9 +6,10 @@ services:
       - "8091:3000"
     environment:
       DB_HOST: mysql-infra
+      DB_PORT: 3306
       DB_USER: root
       DB_PASS: password
-      DB_NAME: restaurante_caio_8091
+      DB_NAME: restauranteCaio
     networks:
       - rede_alunos
 networks:
