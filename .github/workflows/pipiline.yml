@@ -107,23 +107,32 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Gerar tags da imagem
-        id: meta
-        uses: docker/metadata-action@v6
-        with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}
-          tags: |
-            type=raw,value=staging
-            type=sha,prefix=staging-
-
       - name: Build e push da imagem
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+        env:
+          IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}
+        run: |
+          set -e
+          SHORT_SHA="$(echo "${GITHUB_SHA}" | cut -c1-7)"
+
+          for attempt in 1 2 3; do
+            echo "Tentativa ${attempt}/3 de build e push da imagem..."
+
+            if docker buildx build \
+              --file ./Dockerfile \
+              --tag "${IMAGE_NAME}:staging" \
+              --tag "${IMAGE_NAME}:staging-${SHORT_SHA}" \
+              --push \
+              .; then
+              echo "Imagem publicada com sucesso."
+              exit 0
+            fi
+
+            echo "Falha ao publicar imagem. Aguardando antes de tentar novamente..."
+            sleep 20
+          done
+
+          echo "Nao foi possivel publicar a imagem apos 3 tentativas."
+          exit 1
 
   job_trivy_sonar:
     needs: job_release_docker
