@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Restaurante do Caio | Login</title>
+    <title>Restaurante do Caio | Cadastro</title>
 
     <style>
         * {
@@ -81,6 +81,23 @@
             color: #c77dff;
         }
 
+        .message {
+            border-radius: 8px;
+            margin-bottom: 18px;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .error {
+            background: rgba(255, 82, 82, 0.18);
+            color: #ffb3b3;
+        }
+
+        .success {
+            background: rgba(80, 200, 120, 0.18);
+            color: #a7f3c1;
+        }
+
         button {
             width: 100%;
             padding: 12px;
@@ -111,16 +128,6 @@
         .extras a:hover {
             text-decoration: underline;
         }
-
-        .footer {
-            margin-top: 25px;
-            font-size: 12px;
-            color: #777;
-        }
-
-        .footer strong {
-            color: #c77dff;
-        }
     </style>
 </head>
 
@@ -128,10 +135,18 @@
 <div class="container">
     <img src="/logo.png" alt="Logo Restaurante do Caio" class="logo">
 
-    <h1>Restaurante do Caio</h1>
-    <p class="subtitle">Sabor que conquista todos os dias</p>
+    <h1>Criar conta</h1>
+    <p class="subtitle">Cadastre seu acesso ao Restaurante do Caio</p>
 
-    <form action="/login" method="POST">
+    <% if (error) { %>
+        <div class="message error"><%= error %></div>
+    <% } %>
+
+    <% if (success) { %>
+        <div class="message success"><%= success %></div>
+    <% } %>
+
+    <form action="/register" method="POST">
         <div class="input-group">
             <input type="text" name="username" required>
             <label>Usuario</label>
@@ -142,17 +157,16 @@
             <label>Senha</label>
         </div>
 
-        <button type="submit">Entrar</button>
+        <div class="input-group">
+            <input type="password" name="confirmPassword" required>
+            <label>Confirmar senha</label>
+        </div>
+
+        <button type="submit">Cadastrar</button>
     </form>
 
     <div class="extras">
-        <p><a href="#">Esqueceu a senha?</a></p>
-        <p>Nao tem conta? <a href="/register">Cadastre-se</a></p>
-    </div>
-
-    <div class="footer">
-        2026 <strong>Restaurante do Caio</strong><br>
-        Sistema interno de pedidos e gestao
+        <p>Ja tem conta? <a href="/">Entrar</a></p>
     </div>
 </div>
 </body>

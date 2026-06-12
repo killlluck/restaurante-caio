@@ -18,7 +18,7 @@ COPY --from=deps /usr/local/bin/node /usr/local/bin/node
 COPY --from=deps /app/node_modules ./node_modules
 COPY index.js ./
 COPY logo.png ./
-COPY views/dashboard.ejs views/login.ejs ./views/
+COPY views/dashboard.ejs views/login.ejs views/register.ejs ./views/
 
 EXPOSE 3000
 
